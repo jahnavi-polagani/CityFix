@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CityFix - Fix Your City, One Report at a Time</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased selection:bg-blue-500 selection:text-white min-h-screen flex flex-col">
+
+    <!-- Sticky Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Left: Logo & Product Name -->
+                <a href="/" class="flex items-center gap-3 group">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-700 via-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-2xl font-black tracking-tight text-slate-900" data-brand-name>CityFix</span>
+                            <span class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 tracking-wider">AI</span>
+                        </div>
+                        <span class="text-[11px] font-medium text-slate-500 hidden sm:inline">Civic Intelligence Platform</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="/" class="text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Home</a>
+                    <a href="/report" class="text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Report Issue</a>
+                    <a href="/explore" class="text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Explore Issues</a>
+                    <a href="/dashboard" class="text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Dashboard</a>
+                </nav>
+
+                <!-- Desktop Auth / Action Container -->
+                <div id="nav-auth-container" class="hidden md:flex items-center gap-3">
+                    <a href="/login" class="text-sm font-semibold text-slate-700 hover:text-blue-600 px-3 py-2 rounded-lg transition">Login</a>
+                    <a href="/login?tab=register" class="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 px-5 py-2.5 rounded-xl shadow-md shadow-blue-500/20 transition transform hover:-translate-y-0.5">Sign Up</a>
+                </div>
+
+                <!-- Mobile Hamburger Button -->
+                <div class="flex items-center gap-2 md:hidden">
+                    <button id="mobile-menu-btn" aria-label="Toggle Navigation Menu" class="p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition focus:outline-none">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Mobile Menu Drawer (Hidden by default) -->
+        <div id="mobile-menu-drawer" class="hidden md:hidden border-t border-slate-200/80 bg-white/98 backdrop-blur-xl px-4 pt-3 pb-6 space-y-4 shadow-xl">
+            <nav class="flex flex-col space-y-2">
+                <a href="/" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition">
+                    <i data-lucide="home" class="w-4 h-4 text-slate-400"></i>
+                    <span>Home</span>
+                </a>
+                <a href="/report" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition">
+                    <i data-lucide="plus-circle" class="w-4 h-4 text-slate-400"></i>
+                    <span>Report Issue</span>
+                </a>
+                <a href="/explore" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition">
+                    <i data-lucide="compass" class="w-4 h-4 text-slate-400"></i>
+                    <span>Explore Issues</span>
+                </a>
+                <a href="/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-400"></i>
+                    <span>Dashboard</span>
+                </a>
+            </nav>
+            <div id="mobile-auth-container" class="pt-3 border-t border-slate-100 flex flex-col gap-2">
+                <a href="/login" class="w-full text-center py-2.5 text-sm font-semibold text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Login</a>
+                <a href="/login?tab=register" class="w-full text-center py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-md shadow-blue-500/20 transition">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Body Container -->
+    <main class="flex-grow">
+
+        <!-- 3. HERO SECTION -->
+        <section class="relative overflow-hidden bg-gradient-to-b from-blue-50/70 via-white to-slate-50 pt-12 pb-20 lg:pt-20 lg:pb-28 border-b border-slate-200/60">
+            <!-- Decorative Subtle Grid Background -->
+            <div class="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-35 -z-10"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                    
+                    <!-- Left Hero Content -->
+                    <div class="lg:col-span-7 space-y-7 text-center lg:text-left">
+                        
+                        <!-- Badge -->
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-100/90 border border-blue-200/80 text-blue-800 text-xs font-bold tracking-wide uppercase shadow-sm">
+                            <span class="w-2 h-2 rounded-full bg-blue-600 pulse-beacon"></span>
+                            <span class="text-blue-900 font-extrabold">Next-Gen Civic Tech</span>
+                            <span class="text-blue-400">|</span>
+                            <span>Powered by Multimodal AI</span>
+                        </div>
+
+                        <!-- Main Headline -->
+                        <h1 aria-label="Fix Your City, One Report at a Time." class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.12]">
+                            Fix Your City, <br class="hidden sm:inline">
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500">
+                                One Report at a Time.
+                            </span>
+                        </h1>
+
+                        <!-- Supporting Text -->
+                        <p class="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                            CityFix uses AI to turn photos of civic problems into actionable reports, helping citizens and authorities build safer, cleaner and smarter cities.
+                        </p>
+
+                        <!-- Primary & Secondary Buttons -->
+                        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                            <a href="/report" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-base font-bold shadow-xl shadow-blue-600/30 hover:shadow-2xl hover:shadow-blue-600/40 transition transform hover:-translate-y-0.5">
+                                <i data-lucide="camera" class="w-5 h-5"></i>
+                                <span>Report an Issue</span>
+                            </a>
+                            <a href="/explore" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 text-base font-bold border border-slate-300 shadow-sm hover:shadow transition transform hover:-translate-y-0.5">
+                                <i data-lucide="map" class="w-5 h-5 text-blue-600"></i>
+                                <span>Explore City Issues</span>
+                            </a>
+                        </div>
+
+                        <!-- Trust / Community Metrics Badge -->
+                        <div class="pt-6 border-t border-slate-200/80 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs font-semibold text-slate-500">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+                                <span>30-Second Quick Filing</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="cpu" class="w-4 h-4 text-indigo-600"></i>
+                                <span>Instant AI Vision Severity</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="shield-alert" class="w-4 h-4 text-blue-600"></i>
+                                <span>Direct Authority Routing</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Hero Visual: Real-Time AI Demonstration Card -->
+                    <div class="lg:col-span-5">
+                        <div class="relative mx-auto max-w-md lg:max-w-none">
+                            
+                            <!-- Ambient Glow Effect -->
+                            <div class="absolute -inset-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl blur-xl opacity-20 group-hover:opacity-30 transition"></div>
+
+                            <!-- Main Card -->
+                            <div class="relative bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 space-y-5 overflow-hidden">
+                                
+                                <!-- Card Header -->
+                                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                                        <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Live AI Vision Telemetry</span>
+                                    </div>
+                                    <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200/80">
+                                        Model: Active
+                                    </span>
+                                </div>
+
+                                <!-- Issue Image Preview Container with Scanner Line -->
+                                <div class="ai-scan-container relative h-48 rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-inner flex items-center justify-center">
+                                    <!-- Representative Issue Image -->
+                                    <img src="https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=800&q=80" 
+                                         alt="Damaged Asphalt Pothole" 
+                                         class="w-full h-full object-cover opacity-80 filter contrast-125" />
+                                    
+                                    <!-- Scanning Beam -->
+                                    <div class="ai-scan-beam"></div>
+
+                                    <!-- Bounding Box Overlay -->
+                                    <div class="absolute inset-8 border-2 border-dashed border-blue-400/90 rounded-xl bg-blue-500/10 flex items-start justify-between p-2">
+                                        <span class="text-[10px] font-mono font-bold bg-blue-600 text-white px-2 py-0.5 rounded shadow">
+                                            DEFECT #CFX-01: POTHOLE (94%)
+                                        </span>
+                                        <span class="text-[10px] font-mono font-bold bg-red-600 text-white px-2 py-0.5 rounded shadow">
+                                            HIGH SEVERITY
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Diagnostic Telemetry Pill Grid -->
+                                <div class="grid grid-cols-3 gap-2 text-center">
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                                        <p class="text-[10px] font-bold uppercase text-slate-400">Confidence</p>
+                                        <p class="text-base font-extrabold text-blue-600">94.2%</p>
+                                    </div>
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                                        <p class="text-[10px] font-bold uppercase text-slate-400">Priority Score</p>
+                                        <p class="text-base font-extrabold text-indigo-600">82 / 100</p>
+                                    </div>
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                                        <p class="text-[10px] font-bold uppercase text-slate-400">Status</p>
+                                        <p class="text-base font-extrabold text-amber-600">In Progress</p>
+                                    </div>
+                                </div>
+
+                                <!-- Location & Department Dispatch -->
+                                <div class="bg-blue-50/70 rounded-xl p-3.5 border border-blue-100 flex items-center justify-between text-xs">
+                                    <div class="flex items-center gap-2 text-slate-700">
+                                        <i data-lucide="map-pin" class="w-4 h-4 text-blue-600 shrink-0"></i>
+                                        <span class="font-semibold truncate max-w-[190px]">MG Road, Near Metro Pillar 142</span>
+                                    </div>
+                                    <span class="font-bold text-blue-800 shrink-0">Roads Dept</span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. PROBLEM SECTION: Common City Problems -->
+        <section class="py-20 bg-white border-b border-slate-200/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-3xl mx-auto mb-16 space-y-3">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider">
+                        <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-blue-600"></i>
+                        <span>Civic Challenges</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                        Common Problems Affecting Our Neighborhoods
+                    </h2>
+                    <p class="text-base sm:text-lg text-slate-600">
+                        Urban infrastructure decay compromises public safety, hygiene, and daily transit. CityFix provides a unified platform to tackle each one.
+                    </p>
+                </div>
+
+                <!-- 6 Problem Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    
+                    <!-- 1. Potholes -->
+                    <div class="hover-lift bg-slate-50/80 rounded-2xl p-7 border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <div class="w-13 h-13 w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center mb-5 shadow-sm">
+                                <i data-lucide="disc-3" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-xl font-extrabold text-slate-900 mb-2">Potholes</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                Hazardous road cavities and asphalt erosion causing vehicular damage, traffic congestion, and two-wheeler accidents.
+                            </p>
+                        </div>
+                        <div class="mt-5 pt-4 border-t border-slate-200/60 flex items-center justify-between text-xs font-semibold text-slate-500">
+                            <span>Avg. Resolution: <b>48 hrs</b></span>
+                            <span class="text-red-600 font-bold">Safety Hazard</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Garbage -->
+                    <div class="hover-lift bg-slate-50/80 rounded-2xl p-7 border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center mb-5 shadow-sm">
+                                <i data-lucide="trash-2" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-xl font-extrabold text-slate-900 mb-2">Garbage</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                Overflowing public waste bins, unauthorized curbside dumps, and unattended debris creating hygiene and pest threats.
+                            </p>
+                        </div>
+                        <div class="mt-5 pt-4 border-t border-slate-200/60 flex items-center justify-between text-xs font-semibold text-slate-500">
+                            <span>Sanitation Team</span>
+                            <span class="text-amber-600 font-bold">Health Impact</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. Broken Streetlights -->
+                    <div class="hover-lift bg-slate-50/80 rounded-2xl p-7 border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center mb-5 shadow-sm">
+                                <i data-lucide="lightbulb-off" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-xl font-extrabold text-slate-900 mb-2">Broken Streetlights</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                Non-functional luminaires and flickering street lamps leaving residential corridors in darkness and increasing crime vulnerability.
+                            </p>
+                        </div>
+                        <div class="mt-5 pt-4 border-t border-slate-200/60 flex items-center justify-between text-xs font-semibold text-slate-500">
+                            <span>Electrical Grid</span>
+                            <span class="text-yellow-700 font-bold">Night Security</span>
+                        </div>
+                    </div>
+
+                    <!-- 4. Overflowing Drains -->
+                    <div class="hover-lift bg-slate-50/80 rounded-2xl p-7 border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-5 shadow-sm">
+                                <i data-lucide="waves" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-xl font-extrabold text-slate-900 mb-2">Overflowing Drains</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                Clogged stormwater drains and blocked underground canals causing urban stagnation, road waterlogging, and foul odors.
+                            </p>
+                        </div>
+                        <div class="mt-5 pt-4 border-t border-slate-200/60 flex items-center justify-between text-xs font-semibold text-slate-500">
+                            <span>Stormwater Division</span>
+                            <span class="text-indigo-600 font-bold">Flood Risk</span>
+                        </div>
+                    </div>
+
+                    <!-- 5. Road Damage -->
+                    <div class="hover-lift bg-slate-50/80 rounded-2xl p-7 border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center mb-5 shadow-sm">
+                                <i data-lucide="cone" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-xl font-extrabold text-slate-900 mb-2">Road Damage</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                Broken sidewalks, missing pavers, uneven tarmac joints, and unbarricaded construction cuts obstructing pedestrian pathways.
+                            </p>
+                        </div>
+                        <div class="mt-5 pt-4 border-t border-slate-200/60 flex items-center justify-between text-xs font-semibold text-slate-500">
+                            <span>Infrastructure Team</span>
+                            <span class="text-orange-600 font-bold">Accessibility</span>
+                        </div>
+                    </div>
+
+                    <!-- 6. Water Leakage -->
+                    <div class="hover-lift bg-slate-50/80 rounded-2xl p-7 border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-5 shadow-sm">
+                                <i data-lucide="droplet" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-xl font-extrabold text-slate-900 mb-2">Water Leakage</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                Fractured municipal potable supply pipelines and ruptured mains flooding street junctions and squandering precious drinking water.
+                            </p>
+                        </div>
+                        <div class="mt-5 pt-4 border-t border-slate-200/60 flex items-center justify-between text-xs font-semibold text-slate-500">
+                            <span>Water & Sewerage</span>
+                            <span class="text-blue-600 font-bold">Critical Resource</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 5. HOW CITYFIX WORKS: 4-Step Interactive Section -->
+        <section class="py-20 bg-slate-50 border-b border-slate-200/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-3xl mx-auto mb-16 space-y-3">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wider">
+                        <i data-lucide="workflow" class="w-3.5 h-3.5"></i>
+                        <span>Seamless Workflow</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                        How CityFix Works
+                    </h2>
+                    <p class="text-base sm:text-lg text-slate-600">
+                        Bridging the gap between observant citizens and responsive city municipal teams in 4 simple steps.
+                    </p>
+                </div>
+
+                <!-- 4 Steps Timeline Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
+                    
+                    <!-- Step 1 -->
+                    <div class="hover-lift bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white font-black text-lg flex items-center justify-center mb-6 shadow-md shadow-blue-500/30">
+                            1
+                        </div>
+                        <div class="space-y-2.5">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-blue-600">Step 01</span>
+                            <h3 class="text-xl font-black text-slate-900">Capture</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                Take or upload a photo of a civic problem directly from your smartphone or browser in seconds.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="hover-lift bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white font-black text-lg flex items-center justify-center mb-6 shadow-md shadow-indigo-500/30">
+                            2
+                        </div>
+                        <div class="space-y-2.5">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-600">Step 02</span>
+                            <h3 class="text-xl font-black text-slate-900">AI Detects</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                AI identifies the problem, estimates its severity level, and calculates an objective priority score.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="hover-lift bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative">
+                        <div class="w-12 h-12 rounded-2xl bg-sky-600 text-white font-black text-lg flex items-center justify-center mb-6 shadow-md shadow-sky-500/30">
+                            3
+                        </div>
+                        <div class="space-y-2.5">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-sky-600">Step 03</span>
+                            <h3 class="text-xl font-black text-slate-900">Locate</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                CityFix uses the location to pinpoint where the issue is, dropping an interactive map coordinate pin.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="hover-lift bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white font-black text-lg flex items-center justify-center mb-6 shadow-md shadow-emerald-500/30">
+                            4
+                        </div>
+                        <div class="space-y-2.5">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-600">Step 04</span>
+                            <h3 class="text-xl font-black text-slate-900">Track</h3>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                Authorities receive the report and citizens can track its progress until marked resolved with proof.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 6. AI FEATURE SECTION: "AI That Understands Your City" -->
+        <section class="py-20 bg-white border-b border-slate-200/80 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    <!-- Left: Description of AI Technology -->
+                    <div class="lg:col-span-6 space-y-6">
+                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold uppercase tracking-wider">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                            <span>Computer Vision Intelligence</span>
+                        </div>
+
+                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                            AI That Understands <br>
+                            <span class="text-blue-600">Your City.</span>
+                        </h2>
+
+                        <p class="text-base sm:text-lg text-slate-600 leading-relaxed">
+                            Civic reporting often fails because text reports lack precision or urgency metrics. CityFix utilizes advanced Multimodal Computer Vision to analyze citizen-submitted photos in real time.
+                        </p>
+
+                        <div class="space-y-4 pt-2">
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 mt-1">
+                                    <i data-lucide="scan" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-base font-bold text-slate-900">Automated Defect Identification</h4>
+                                    <p class="text-sm text-slate-500 mt-0.5">Identifies potholes, leaks, and damaged poles with high confidence scores.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 mt-1">
+                                    <i data-lucide="gauge" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-base font-bold text-slate-900">Objective Severity & Priority Scoring</h4>
+                                    <p class="text-sm text-slate-500 mt-0.5">Calculates numerical priority (1–100) based on pedestrian risk, vehicular speed, and structural hazard.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-1">
+                                    <i data-lucide="send" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-base font-bold text-slate-900">Smart Department Routing</h4>
+                                    <p class="text-sm text-slate-500 mt-0.5">Eliminates bureaucratic delays by recommending the exact municipal agency accountable for repair.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Realistic AI Analysis Card -->
+                    <div class="lg:col-span-6">
+                        <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 text-white shadow-2xl border border-slate-700 relative">
+                            
+                            <!-- Header Bar -->
+                            <div class="flex items-center justify-between pb-4 border-b border-slate-700/80">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    <span class="text-xs font-mono font-bold tracking-wider text-slate-300">CITYFIX VISION ENGINE v1.0</span>
+                                </div>
+                                <span class="text-xs font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30 px-2.5 py-1 rounded-full">
+                                    SYNCHRONIZED
+                                </span>
+                            </div>
+
+                            <!-- Diagnostic Data Output -->
+                            <div class="mt-6 space-y-5">
+                                
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700">
+                                        <p class="text-[10px] font-mono uppercase text-slate-400">Issue</p>
+                                        <p class="text-lg font-black text-white mt-0.5">Pothole</p>
+                                    </div>
+
+                                    <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700">
+                                        <p class="text-[10px] font-mono uppercase text-slate-400">Confidence</p>
+                                        <p class="text-lg font-black text-emerald-400 mt-0.5">94%</p>
+                                    </div>
+
+                                    <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700">
+                                        <p class="text-[10px] font-mono uppercase text-slate-400">Severity</p>
+                                        <p class="text-lg font-black text-orange-400 mt-0.5">High</p>
+                                    </div>
+
+                                    <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700">
+                                        <p class="text-[10px] font-mono uppercase text-slate-400">Priority</p>
+                                        <p class="text-lg font-black text-blue-400 mt-0.5">82 / 100</p>
+                                    </div>
+                                </div>
+
+                                <!-- AI Generated Description Box -->
+                                <div class="bg-slate-800/90 rounded-2xl p-4 border border-slate-700 space-y-1.5">
+                                    <div class="flex items-center gap-1.5 text-xs font-bold text-slate-300 uppercase tracking-wider">
+                                        <i data-lucide="file-text" class="w-3.5 h-3.5 text-blue-400"></i>
+                                        <span>AI Description</span>
+                                    </div>
+                                    <p class="text-sm text-slate-200 italic leading-relaxed">
+                                        "Large pothole detected on the roadway that may create a safety hazard for vehicles and pedestrians."
+                                    </p>
+                                </div>
+
+                                <!-- Recommended Action Box -->
+                                <div class="bg-slate-800/90 rounded-2xl p-4 border border-slate-700 space-y-1.5">
+                                    <div class="flex items-center gap-1.5 text-xs font-bold text-slate-300 uppercase tracking-wider">
+                                        <i data-lucide="wrench" class="w-3.5 h-3.5 text-amber-400"></i>
+                                        <span>Recommended Action</span>
+                                    </div>
+                                    <p class="text-sm font-semibold text-emerald-400">
+                                        "Inspect and repair the damaged road surface."
+                                    </p>
+                                </div>
+
+                                <!-- Suggested Department Badge -->
+                                <div class="pt-2 flex items-center justify-between text-xs text-slate-400">
+                                    <span>Target Dispatch: <b class="text-white">Roads & Infrastructure</b></span>
+                                    <span class="text-emerald-400 font-mono font-bold">● High Priority Queue</span>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 7. COMMUNITY IMPACT SECTION -->
+        <section class="py-16 bg-blue-600 text-white relative overflow-hidden">
+            <!-- Decorative circle gradient -->
+            <div class="absolute -right-16 -bottom-16 w-96 h-96 rounded-full bg-blue-500/40 blur-3xl -z-0"></div>
+            
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center divide-y lg:divide-y-0 lg:divide-x divide-blue-500/40">
+                    
+                    <!-- Metric 1 -->
+                    <div class="pt-4 lg:pt-0">
+                        <p class="text-4xl sm:text-5xl font-black tracking-tight text-white">2,450+</p>
+                        <p class="text-sm sm:text-base font-semibold text-blue-100 mt-2">Issues Reported</p>
+                        <p class="text-xs text-blue-200/80 mt-1">Across residential wards</p>
+                    </div>
+
+                    <!-- Metric 2 -->
+                    <div class="pt-4 lg:pt-0">
+                        <p class="text-4xl sm:text-5xl font-black tracking-tight text-emerald-300">1,820+</p>
+                        <p class="text-sm sm:text-base font-semibold text-blue-100 mt-2">Issues Resolved</p>
+                        <p class="text-xs text-blue-200/80 mt-1">74.2% Municipal closure rate</p>
+                    </div>
+
+                    <!-- Metric 3 -->
+                    <div class="pt-4 lg:pt-0">
+                        <p class="text-4xl sm:text-5xl font-black tracking-tight text-sky-300">94%</p>
+                        <p class="text-sm sm:text-base font-semibold text-blue-100 mt-2">AI Detection Accuracy</p>
+                        <p class="text-xs text-blue-200/80 mt-1">Automated vision triage</p>
+                    </div>
+
+                    <!-- Metric 4 -->
+                    <div class="pt-4 lg:pt-0">
+                        <p class="text-4xl sm:text-5xl font-black tracking-tight text-indigo-200">32</p>
+                        <p class="text-sm sm:text-base font-semibold text-blue-100 mt-2">Areas Covered</p>
+                        <p class="text-xs text-blue-200/80 mt-1">Active smart city zones</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. EXPLORE ISSUES PREVIEW SECTION -->
+        <section class="py-20 bg-slate-50 border-b border-slate-200/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 text-blue-600 text-xs font-bold uppercase tracking-wider mb-2">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                            <span>Public Transparency</span>
+                        </div>
+                        <h2 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                            Explore Active City Reports
+                        </h2>
+                        <p class="text-base text-slate-600 mt-1">
+                            Browse real-time civic issues submitted by citizens across the city.
+                        </p>
+                    </div>
+                    <a href="/explore" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-800 hover:bg-slate-100 text-sm font-bold shadow-sm transition">
+                        <span>Explore All Issues</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 text-blue-600"></i>
+                    </a>
+                </div>
+
+                <!-- 4 Report Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    
+                    <!-- Card 1: Pothole -->
+                    <div class="hover-lift bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="h-44 w-full bg-slate-200 relative overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=600&q=80" 
+                                     alt="Pothole" class="w-full h-full object-cover" />
+                                <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-extrabold badge-high shadow">
+                                    High Severity
+                                </span>
+                                <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-extrabold status-in_progress shadow">
+                                    In Progress
+                                </span>
+                            </div>
+                            <div class="p-5 space-y-2">
+                                <h4 class="text-base font-bold text-slate-900">Pothole on Main Road</h4>
+                                <div class="flex items-center gap-1.5 text-xs text-slate-500">
+                                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
+                                    <span>Main Road, Ward 14</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-5 pb-5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <span class="text-slate-400 font-mono">CFX-2026-1001</span>
+                            <a href="/explore" class="font-bold text-blue-600 hover:text-blue-700">View Details &rarr;</a>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Garbage -->
+                    <div class="hover-lift bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="h-44 w-full bg-slate-200 relative overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1618477461853-cf6ed80faba5?auto=format&fit=crop&w=600&q=80" 
+                                     alt="Garbage Dump" class="w-full h-full object-cover" />
+                                <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-extrabold badge-medium shadow">
+                                    Medium Severity
+                                </span>
+                                <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-extrabold status-resolved shadow">
+                                    Resolved
+                                </span>
+                            </div>
+                            <div class="p-5 space-y-2">
+                                <h4 class="text-base font-bold text-slate-900">Garbage Accumulation</h4>
+                                <div class="flex items-center gap-1.5 text-xs text-slate-500">
+                                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
+                                    <span>Market Area, East Sector</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-5 pb-5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <span class="text-slate-400 font-mono">CFX-2026-1002</span>
+                            <a href="/explore" class="font-bold text-blue-600 hover:text-blue-700">View Details &rarr;</a>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Broken Streetlight -->
+                    <div class="hover-lift bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="h-44 w-full bg-slate-200 relative overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80" 
+                                     alt="Broken Streetlight" class="w-full h-full object-cover" />
+                                <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-extrabold badge-high shadow">
+                                    High Severity
+                                </span>
+                                <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-extrabold status-assigned shadow">
+                                    Assigned
+                                </span>
+                            </div>
+                            <div class="p-5 space-y-2">
+                                <h4 class="text-base font-bold text-slate-900">Broken Streetlight Pole</h4>
+                                <div class="flex items-center gap-1.5 text-xs text-slate-500">
+                                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
+                                    <span>Park Road, Block 4</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-5 pb-5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <span class="text-slate-400 font-mono">CFX-2026-1003</span>
+                            <a href="/explore" class="font-bold text-blue-600 hover:text-blue-700">View Details &rarr;</a>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Water Leakage -->
+                    <div class="hover-lift bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="h-44 w-full bg-slate-200 relative overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1541888946425-d0fbb18086f6?auto=format&fit=crop&w=600&q=80" 
+                                     alt="Water Leakage" class="w-full h-full object-cover" />
+                                <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-extrabold badge-critical shadow">
+                                    Critical
+                                </span>
+                                <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-extrabold status-in_progress shadow">
+                                    In Progress
+                                </span>
+                            </div>
+                            <div class="p-5 space-y-2">
+                                <h4 class="text-base font-bold text-slate-900">Burst Drinking Water Pipe</h4>
+                                <div class="flex items-center gap-1.5 text-xs text-slate-500">
+                                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
+                                    <span>Station Junction Road</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-5 pb-5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <span class="text-slate-400 font-mono">CFX-2026-1004</span>
+                            <a href="/explore" class="font-bold text-blue-600 hover:text-blue-700">View Details &rarr;</a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 9. CALL TO ACTION (CTA) SECTION -->
+        <section class="py-20 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white relative overflow-hidden">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
+                
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md text-white text-xs font-bold uppercase tracking-wider">
+                    <i data-lucide="sparkle" class="w-4 h-4 text-blue-200"></i>
+                    <span>Take Action Today</span>
+                </div>
+
+                <h2 class="text-3xl sm:text-5xl font-black tracking-tight text-white">
+                    See a Problem? Help Fix It.
+                </h2>
+
+                <p class="text-lg sm:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
+                    Your photo could be the first step toward fixing a problem in your neighborhood.
+                </p>
+
+                <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <a href="/report" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-9 py-4 rounded-2xl bg-white text-blue-700 hover:bg-blue-50 text-base font-extrabold shadow-2xl transition transform hover:-translate-y-0.5">
+                        <i data-lucide="camera" class="w-5 h-5"></i>
+                        <span>Report an Issue</span>
+                    </a>
+                    <a href="/explore" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-blue-800/60 hover:bg-blue-800/80 border border-blue-400/40 text-white text-base font-bold transition transform hover:-translate-y-0.5">
+                        <i data-lucide="map" class="w-5 h-5"></i>
+                        <span>Explore Issues</span>
+                    </a>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 10. PROFESSIONAL FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 pt-16 pb-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+            
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+                
+                <!-- Brand Info -->
+                <div class="md:col-span-6 space-y-4">
+                    <a href="/" class="flex items-center gap-2.5 text-white">
+                        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md">
+                            <i data-lucide="shield-check" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-xl font-extrabold tracking-tight" data-brand-name>CityFix</span>
+                    </a>
+                    <p class="text-sm text-slate-400 max-w-md leading-relaxed">
+                        Building cleaner, safer and smarter cities together.
+                    </p>
+                    <p class="text-xs text-slate-500">
+                        An AI-powered civic platform bridging the gap between proactive citizens and municipal authorities.
+                    </p>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="md:col-span-3 space-y-3">
+                    <h5 class="text-xs font-bold uppercase tracking-wider text-slate-200">Platform</h5>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/" class="hover:text-white transition">Home</a></li>
+                        <li><a href="/report" class="hover:text-white transition">Report Issue</a></li>
+                        <li><a href="/explore" class="hover:text-white transition">Explore Issues</a></li>
+                        <li><a href="/dashboard" class="hover:text-white transition">Citizen Dashboard</a></li>
+                    </ul>
+                </div>
+
+                <!-- Legal & Contact Links -->
+                <div class="md:col-span-3 space-y-3">
+                    <h5 class="text-xs font-bold uppercase tracking-wider text-slate-200">Resources</h5>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/about" class="hover:text-white transition">About</a></li>
+                        <li><a href="/contact" class="hover:text-white transition">Contact</a></li>
+                        <li><a href="/privacy" class="hover:text-white transition">Privacy</a></li>
+                        <li><a href="/docs" class="text-blue-400 hover:text-blue-300 transition">API Swagger</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+                <p>&copy; 2026 CityFix Platform. All rights reserved. Open Civic Initiative.</p>
+                
+                <!-- Social Icons -->
+                <div class="flex items-center gap-4 text-slate-400">
+                    <a href="https://twitter.com" target="_blank" rel="noreferrer" aria-label="Twitter" class="hover:text-white transition">
+                        <i data-lucide="twitter" class="w-4 h-4"></i>
+                    </a>
+                    <a href="https://github.com" target="_blank" rel="noreferrer" aria-label="GitHub" class="hover:text-white transition">
+                        <i data-lucide="github" class="w-4 h-4"></i>
+                    </a>
+                    <a href="https://linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn" class="hover:text-white transition">
+                        <i data-lucide="linkedin" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- Client Scripts -->
+    <script src="/static/js/app.js"></script>
+    <script>
+        // Initialize all Lucide Icons on document load
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>

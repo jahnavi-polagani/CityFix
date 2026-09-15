@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - CityFix</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased">
+    <!-- Navbar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight text-slate-900" data-brand-name>CityFix</span>
+            </a>
+            <a href="/" class="text-sm font-bold text-blue-600">&larr; Back to Home</a>
+        </div>
+    </header>
+
+    <main class="flex-grow py-16 px-4 max-w-3xl mx-auto space-y-6">
+        <h1 class="text-3xl font-black text-slate-900">Privacy Policy</h1>
+        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4 text-sm text-slate-600 leading-relaxed">
+            <p><strong>1. Information We Collect:</strong> CityFix processes issue photos, user-provided locations, and civic descriptions to facilitate infrastructure repair and transparency.</p>
+            <p><strong>2. Public vs Private Data:</strong> Photos of public roadways, garbage, or civic infrastructure are displayed publicly on the city map. Personal contact details remain protected and visible only to assigned municipal departments.</p>
+            <p><strong>3. AI Processing:</strong> Uploaded images are processed via computer vision models solely to identify civic defect categories and calculate severity scores.</p>
+        </div>
+        <a href="/" class="inline-block font-bold text-blue-600 hover:text-blue-700">&larr; Back to Homepage</a>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center text-xs border-t border-slate-800">
+        <p>&copy; 2026 CityFix Platform. Building cleaner, safer and smarter cities together.</p>
+    </footer>
+    <script src="/static/js/app.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

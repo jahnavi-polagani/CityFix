@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report an Issue - CityFix</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased">
+    <!-- Navbar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight text-slate-900" data-brand-name>CityFix</span>
+            </a>
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="/" class="text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Home</a>
+                <a href="/report" class="text-sm font-semibold text-blue-600">Report Issue</a>
+                <a href="/explore" class="text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Explore Issues</a>
+                <a href="/dashboard" class="text-sm font-semibold text-slate-700 hover:text-blue-600 transition">Dashboard</a>
+            </nav>
+            <div id="nav-auth-container" class="hidden md:flex items-center gap-3">
+                <a href="/login" class="text-sm font-semibold text-slate-700 hover:text-blue-600 px-3 py-2">Login</a>
+                <a href="/login?tab=register" class="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow py-12 px-4">
+        <div class="max-w-5xl mx-auto grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-start">
+            <section class="space-y-5">
+                <div class="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500" aria-label="Report progress"><span class="rounded-full bg-blue-100 px-2.5 py-1 text-blue-700">1 Upload</span><span>2 AI Analysis</span><span>3 Location</span><span>4 Review</span><span>5 Submitted</span></div>
+                <h1 class="text-4xl font-black tracking-tight text-slate-900">Report a civic issue</h1>
+                <p class="text-slate-600 leading-relaxed">Upload a clear photo and let CityFix identify the issue, estimate urgency, and suggest the next municipal action.</p>
+                <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                    <p class="font-bold flex items-center gap-2"><i data-lucide="flask-conical" class="w-4 h-4"></i> Demo mode available</p>
+                    <p class="mt-1">Without an AI API key, CityFix uses a clearly labeled offline analyzer. Your image is still validated before analysis.</p>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl">
+                <form id="analysis-form" class="space-y-5">
+                    <div>
+                        <label for="issue-image" class="block text-sm font-bold text-slate-800 mb-2">Issue photo</label>
+                        <input id="issue-image" name="file" type="file" accept="image/jpeg,image/png,image/webp" required class="block w-full rounded-xl border border-slate-300 p-3 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-blue-50 file:px-3 file:py-2 file:font-bold file:text-blue-700">
+                        <p class="mt-2 text-xs text-slate-500">JPG, PNG, or WebP. Maximum 10 MB.</p>
+                        <img id="image-preview" class="hidden mt-4 max-h-48 w-full rounded-xl object-cover border border-slate-200" alt="Selected issue preview">
+                    </div>
+                    <div>
+                        <label for="category-hint" class="block text-sm font-bold text-slate-800 mb-2">Optional clue</label>
+                        <input id="category-hint" name="category_hint" type="text" placeholder="e.g. pothole, garbage, streetlight" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <button id="analyze-button" type="submit" class="w-full rounded-xl bg-blue-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700 disabled:cursor-wait disabled:opacity-60">
+                        <span class="inline-flex items-center justify-center gap-2"><i data-lucide="scan-search" class="w-4 h-4"></i> Analyze Image</span>
+                    </button>
+                    <p id="analysis-error" class="hidden rounded-xl bg-rose-50 p-3 text-sm font-semibold text-rose-700"></p>
+                </form>
+
+                <div id="analysis-result" class="hidden mt-8 border-t border-slate-200 pt-6">
+                    <div class="flex items-start justify-between gap-4 mb-5">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-widest text-blue-600">Analysis complete</p>
+                            <h2 id="result-issue" class="mt-1 text-2xl font-black text-slate-900"></h2>
+                        </div>
+                        <span id="result-mode" class="shrink-0 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800"></span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 mb-5">
+                        <div class="rounded-xl bg-slate-50 p-3"><p class="text-xs text-slate-500">Confidence</p><p id="result-confidence" class="mt-1 text-lg font-black text-slate-900"></p></div>
+                        <div class="rounded-xl bg-slate-50 p-3"><p class="text-xs text-slate-500">Severity</p><p id="result-severity" class="mt-1 text-lg font-black text-slate-900"></p></div>
+                        <div class="rounded-xl bg-slate-50 p-3"><p class="text-xs text-slate-500">Priority</p><p id="result-priority" class="mt-1 text-lg font-black text-slate-900"></p></div>
+                    </div>
+                    <dl class="space-y-4 text-sm">
+                        <div><dt class="font-bold text-slate-900">Why this priority was assigned</dt><dd id="result-explanation" class="mt-1 text-slate-600"></dd></div>
+                        <div><dt class="font-bold text-slate-900">AI-generated description</dt><dd id="result-description" class="mt-1 text-slate-600"></dd></div>
+                        <div><dt class="font-bold text-slate-900">Recommended action</dt><dd id="result-action" class="mt-1 text-slate-600"></dd></div>
+                    </dl>
+                </div>
+
+                <div id="location-section" class="hidden mt-8 border-t border-slate-200 pt-6">
+                    <div class="flex items-start justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-widest text-blue-600">Step 3 of 5</p>
+                            <h2 class="mt-1 text-2xl font-black text-slate-900">Choose the location</h2>
+                        </div>
+                        <span id="location-status-badge" class="hidden shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">Location set</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-4">Use your current position, click the map, or drag the marker to the issue location.</p>
+                    <button id="current-location-button" type="button" class="w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm font-bold text-blue-700 transition hover:bg-blue-100 disabled:cursor-wait disabled:opacity-60">
+                        <span class="inline-flex items-center justify-center gap-2"><i data-lucide="locate-fixed" class="w-4 h-4"></i> Use My Current Location</span>
+                    </button>
+                    <p id="location-message" class="mt-3 hidden rounded-xl p-3 text-sm font-semibold"></p>
+                    <div class="mt-4 overflow-hidden rounded-2xl border border-slate-200">
+                        <div id="map" aria-label="Interactive issue location map"></div>
+                    </div>
+                    <div class="mt-4 grid sm:grid-cols-2 gap-3">
+                        <div>
+                            <label for="latitude-input" class="block text-xs font-bold text-slate-700 mb-1">Latitude</label>
+                            <input id="latitude-input" type="number" step="any" placeholder="e.g. 12.9716" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                        </div>
+                        <div>
+                            <label for="longitude-input" class="block text-xs font-bold text-slate-700 mb-1">Longitude</label>
+                            <input id="longitude-input" type="number" step="any" placeholder="e.g. 77.5946" class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm">
+                        </div>
+                    </div>
+                    <button id="apply-coordinates-button" type="button" class="mt-3 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50">Set Manual Coordinates</button>
+                    <div class="mt-4 rounded-xl bg-slate-50 p-4 text-sm">
+                        <p class="font-bold text-slate-900">Selected coordinates</p>
+                        <p id="selected-coordinates" class="mt-1 text-slate-600">No location selected yet.</p>
+                        <p class="mt-3 font-bold text-slate-900">Detected address</p>
+                        <p id="selected-address" class="mt-1 text-slate-600">Address lookup will appear here when available.</p>
+                    </div>
+                    <button id="review-button" type="button" disabled class="mt-5 w-full rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50">Continue to Review</button>
+                    <div id="review-summary" class="hidden mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+                        <p class="font-bold">Report ready for review</p>
+                        <p id="review-summary-text" class="mt-1"></p>
+                        <button id="submit-report-button" type="button" class="hidden mt-4 w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700 disabled:cursor-wait disabled:opacity-60">Submit Report</button>
+                    </div>
+                </div>
+
+                <div id="submission-success" class="hidden mt-8 border-t border-slate-200 pt-6">
+                    <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+                        <div class="flex items-center gap-3 text-emerald-800"><i data-lucide="circle-check" class="w-7 h-7"></i><h2 class="text-2xl font-black">Report Submitted Successfully</h2></div>
+                        <dl class="mt-5 grid sm:grid-cols-2 gap-4 text-sm text-emerald-950">
+                            <div><dt class="font-bold">Report ID</dt><dd id="success-report-id" class="mt-1"></dd></div>
+                            <div><dt class="font-bold">Issue type</dt><dd id="success-issue-type" class="mt-1"></dd></div>
+                            <div><dt class="font-bold">Severity</dt><dd id="success-severity" class="mt-1"></dd></div>
+                            <div><dt class="font-bold">Priority</dt><dd id="success-priority" class="mt-1"></dd></div>
+                            <div class="sm:col-span-2"><dt class="font-bold">Address</dt><dd id="success-address" class="mt-1"></dd></div>
+                            <div><dt class="font-bold">Current status</dt><dd id="success-status" class="mt-1"></dd></div>
+                        </dl>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center text-xs border-t border-slate-800">
+        <p>&copy; 2026 CityFix Platform. Building cleaner, safer and smarter cities together.</p>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/static/js/map.js"></script>
+    <script>
+        const analysisForm = document.getElementById("analysis-form");
+        const analyzeButton = document.getElementById("analyze-button");
+        const analysisError = document.getElementById("analysis-error");
+        const analysisResult = document.getElementById("analysis-result");
+        const locationSection = document.getElementById("location-section");
+        const locationMessage = document.getElementById("location-message");
+        const currentLocationButton = document.getElementById("current-location-button");
+        const reviewButton = document.getElementById("review-button");
+        const reportLocation = { latitude: null, longitude: null, address: "" };
+        let locationMapInitialized = false;
+        let addressLookupPromise = Promise.resolve();
+        let analysisData = null;
+        const submissionKey = sessionStorage.getItem("cityfix_submission_key") || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
+        sessionStorage.setItem("cityfix_submission_key", submissionKey);
+
+        function setResult(id, value) { document.getElementById(id).textContent = value; }
+
+        document.getElementById("issue-image").addEventListener("change", (event) => {
+            const file = event.target.files[0];
+            const preview = document.getElementById("image-preview");
+            if (!file) {
+                preview.classList.add("hidden");
+                preview.removeAttribute("src");
+                return;
+            }
+            preview.src = URL.createObjectURL(file);
+            preview.classList.remove("hidden");
+        });
+
+        function showLocationMessage(message, isError = false) {
+            locationMessage.textContent = message;
+            locationMessage.className = isError
+                ? "mt-3 rounded-xl bg-rose-50 p-3 text-sm font-semibold text-rose-700"
+                : "mt-3 rounded-xl bg-blue-50 p-3 text-sm font-semibold text-blue-700";
+        }
+
+        function updateLocationFields(latitude, longitude) {
+            reportLocation.latitude = Number(latitude);
+            reportLocation.longitude = Number(longitude);
+            document.getElementById("latitude-input").value = reportLocation.latitude.toFixed(6);
+            document.getElementById("longitude-input").value = reportLocation.longitude.toFixed(6);
+            document.getElementById("selected-coordinates").textContent = `${reportLocation.latitude.toFixed(6)}, ${reportLocation.longitude.toFixed(6)}`;
+            document.getElementById("location-status-badge").classList.remove("hidden");
+            reviewButton.disabled = false;
+            addressLookupPromise = lookupAddress(reportLocation.latitude, reportLocation.longitude);
+        }
+
+        async function lookupAddress(latitude, longitude) {
+            reportLocation.address = "Looking up address...";
+            document.getElementById("selected-address").textContent = reportLocation.address;
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`, { headers: { "Accept-Language": "en" } });
+                if (!response.ok) throw new Error("Address lookup failed");
+                const data = await response.json();
+                reportLocation.address = data.display_name || "Address unavailable; coordinates retained.";
+            } catch (error) {
+                reportLocation.address = "Address unavailable; coordinates retained.";
+            }
+            document.getElementById("selected-address").textContent = reportLocation.address;
+        }
+
+        function initializeLocationMap() {
+            if (locationMapInitialized) {
+                CityFixMap.map.invalidateSize();
+                return;
+            }
+            const map = CityFixMap.init("map");
+            if (!map) {
+                showLocationMessage("The map could not load. Use the manual latitude and longitude fields instead.", true);
+                return;
+            }
+            locationMapInitialized = true;
+            CityFixMap.enableLocationPicker((latitude, longitude) => updateLocationFields(latitude, longitude));
+            map.invalidateSize();
+        }
+
+        currentLocationButton.addEventListener("click", () => {
+            currentLocationButton.disabled = true;
+            currentLocationButton.querySelector("span").innerHTML = '<i data-lucide="loader-circle" class="w-4 h-4 animate-spin"></i> Detecting your location...';
+            lucide.createIcons();
+            showLocationMessage("Requesting browser location permission...");
+            CityFixMap.getUserLocation((latitude, longitude) => {
+                CityFixMap.setPickerLocation(latitude, longitude);
+                CityFixMap.map.setView([latitude, longitude], 16);
+                updateLocationFields(latitude, longitude);
+                showLocationMessage("Location detected. You can drag the marker to adjust it.");
+                currentLocationButton.disabled = false;
+                currentLocationButton.querySelector("span").innerHTML = '<i data-lucide="locate-fixed" class="w-4 h-4"></i> Use My Current Location';
+                lucide.createIcons();
+            }, (error) => {
+                const messages = { 1: "Location permission was denied. You can select a point on the map or enter coordinates manually.", 2: "Your location is unavailable. You can select a point on the map or enter coordinates manually.", 3: "Location detection timed out. You can select a point on the map or enter coordinates manually." };
+                showLocationMessage(messages[error.code] || error.message || "Could not detect your location. Choose it manually.", true);
+                currentLocationButton.disabled = false;
+                currentLocationButton.querySelector("span").innerHTML = '<i data-lucide="locate-fixed" class="w-4 h-4"></i> Use My Current Location';
+                lucide.createIcons();
+            });
+        });
+
+        document.getElementById("apply-coordinates-button").addEventListener("click", () => {
+            const latitude = Number(document.getElementById("latitude-input").value);
+            const longitude = Number(document.getElementById("longitude-input").value);
+            if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+                showLocationMessage("Enter a valid latitude (-90 to 90) and longitude (-180 to 180).", true);
+                return;
+            }
+            CityFixMap.setPickerLocation(latitude, longitude);
+            CityFixMap.map.setView([latitude, longitude], 16);
+            updateLocationFields(latitude, longitude);
+            showLocationMessage("Manual location set. You can still drag the marker to fine-tune it.");
+        });
+
+        reviewButton.addEventListener("click", async () => {
+            reviewButton.disabled = true;
+            await addressLookupPromise;
+            document.getElementById("review-summary-text").textContent = `${reportLocation.address} (${reportLocation.latitude.toFixed(6)}, ${reportLocation.longitude.toFixed(6)})`;
+            document.getElementById("review-summary").classList.remove("hidden");
+            document.getElementById("submit-report-button").classList.remove("hidden");
+            reviewButton.disabled = false;
+        });
+
+        document.getElementById("submit-report-button").addEventListener("click", async () => {
+            const submitButton = document.getElementById("submit-report-button");
+            const file = document.getElementById("issue-image").files[0];
+            if (!analysisData || !file || reportLocation.latitude === null || reportLocation.longitude === null) {
+                showLocationMessage("Complete image analysis and location selection before submitting.", true);
+                return;
+            }
+            const authToken = localStorage.getItem("cityfix_token");
+            if (!authToken) {
+                sessionStorage.setItem("cityfix_return_notice", "Sign in to submit your civic report.");
+                window.location.href = "/login?next=/report";
+                return;
+            }
+            submitButton.disabled = true;
+            submitButton.textContent = "Submitting report...";
+            try {
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("issue_type", analysisData.issue_type);
+                formData.append("confidence", analysisData.confidence);
+                formData.append("severity", analysisData.severity);
+                formData.append("priority", analysisData.priority);
+                formData.append("description", analysisData.description);
+                formData.append("recommended_action", analysisData.recommended_action);
+                formData.append("latitude", reportLocation.latitude);
+                formData.append("longitude", reportLocation.longitude);
+                formData.append("address", reportLocation.address === "Address unavailable; coordinates retained." ? "" : reportLocation.address);
+                formData.append("demo_mode", analysisData.demo_mode);
+                formData.append("submission_key", submissionKey);
+                const response = await fetch("/api/reports/submit", { method: "POST", headers: { Authorization: `Bearer ${authToken}` }, body: formData });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || "We could not submit the report.");
+                setResult("success-report-id", data.tracking_number);
+                setResult("success-issue-type", data.category);
+                setResult("success-severity", data.severity);
+                setResult("success-priority", `${data.priority_score}/100 (${data.priority_level})`);
+                setResult("success-address", data.address || `${data.latitude}, ${data.longitude}`);
+                setResult("success-status", data.status);
+                document.getElementById("submission-success").classList.remove("hidden");
+                document.getElementById("review-summary").classList.add("hidden");
+                submitButton.disabled = true;
+                submitButton.textContent = "Report Submitted";
+                document.getElementById("location-section").scrollIntoView({ behavior: "smooth", block: "start" });
+                lucide.createIcons();
+            } catch (error) {
+                showLocationMessage(error.message || "Submission failed. Please try again.", true);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = "Submit Report";
+            }
+        });
+
+        analysisForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const fileInput = document.getElementById("issue-image");
+            if (!fileInput.files.length) return;
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            formData.append("category_hint", document.getElementById("category-hint").value);
+            analysisError.classList.add("hidden");
+            analysisResult.classList.add("hidden");
+            analyzeButton.disabled = true;
+            analyzeButton.querySelector("span").innerHTML = '<i data-lucide="loader-circle" class="w-4 h-4 animate-spin"></i> Analyzing your image...';
+            lucide.createIcons();
+            try {
+                const response = await fetch("/api/ai/analyze", { method: "POST", body: formData });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || "Analysis failed. Please try another image.");
+                analysisData = data;
+                setResult("result-issue", data.issue_type);
+                setResult("result-confidence", `${Math.round(data.confidence * 100)}%`);
+                setResult("result-severity", data.severity);
+                setResult("result-priority", `${data.priority}/100 (${data.priority_level})`);
+                setResult("result-explanation", data.priority_explanation);
+                setResult("result-description", data.description);
+                setResult("result-action", data.recommended_action);
+                setResult("result-mode", data.demo_mode ? "DEMO MODE" : data.analysis_source);
+                document.getElementById("result-mode").className = data.demo_mode ? "shrink-0 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800" : "shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800";
+                analysisResult.classList.remove("hidden");
+                locationSection.classList.remove("hidden");
+                initializeLocationMap();
+                locationSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            } catch (error) {
+                analysisError.textContent = error.message || "Network error. Please try again.";
+                analysisError.classList.remove("hidden");
+            } finally {
+                analyzeButton.disabled = false;
+                analyzeButton.querySelector("span").innerHTML = '<i data-lucide="scan-search" class="w-4 h-4"></i> Analyze Image';
+                lucide.createIcons();
+            }
+        });
+        lucide.createIcons();
+    </script>
+</body>
+</html>

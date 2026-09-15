@@ -1,0 +1,32 @@
+# Environment / API keys
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Database
+*.db
+*.sqlite3
+
+# Uploaded files
+uploads/
+
+# IDE
+.vscode/
+.idea/
+
+# Vim temporary files
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

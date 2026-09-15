@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Management - CityFix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen antialiased">
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md"><i data-lucide="shield-check" class="w-6 h-6"></i></div>
+                <span class="text-xl font-extrabold tracking-tight" data-brand-name>CityFix</span>
+            </a>
+            <a href="/" class="text-sm font-semibold text-slate-700 hover:text-blue-600">Back to CityFix</a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+            <div>
+                <p class="text-sm font-bold uppercase tracking-widest text-blue-600">Authority workspace</p>
+                <h1 class="text-4xl font-black tracking-tight mt-1">Report management</h1>
+                <p class="text-slate-600 mt-2">Review incoming civic issues and update their operational status.</p>
+            </div>
+            <button id="refresh-button" class="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh reports</button>
+        </div>
+
+        <section id="login-panel" class="max-w-md bg-white rounded-3xl border border-slate-200 shadow-xl p-6">
+            <h2 class="text-xl font-black">Authority sign in</h2>
+            <p class="text-sm text-slate-600 mt-1 mb-5">Use an authority or admin account to manage reports.</p>
+            <form id="login-form" class="space-y-4">
+                <input id="login-email" type="email" required value="officer@cityfix.org" placeholder="Email" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm">
+                <input id="login-password" type="password" required value="admin123" placeholder="Password" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm">
+                <button class="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-slate-800">Sign in</button>
+                <p id="login-error" class="hidden rounded-xl bg-rose-50 p-3 text-sm font-semibold text-rose-700"></p>
+            </form>
+        </section>
+
+        <section id="reports-panel" class="hidden">
+            <p id="reports-message" class="hidden mb-4 rounded-xl p-3 text-sm font-semibold"></p>
+            <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <table class="w-full min-w-[900px] text-left text-sm">
+                    <thead class="bg-slate-100 text-xs uppercase tracking-wider text-slate-600">
+                        <tr><th class="px-4 py-4">Report ID</th><th class="px-4 py-4">Issue</th><th class="px-4 py-4">Severity</th><th class="px-4 py-4">Priority</th><th class="px-4 py-4">Address</th><th class="px-4 py-4">Created</th><th class="px-4 py-4">Status</th></tr>
+                    </thead>
+                    <tbody id="reports-body" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        const tokenKey = "cityfix_token";
+        const loginPanel = document.getElementById("login-panel");
+        const reportsPanel = document.getElementById("reports-panel");
+        const reportsBody = document.getElementById("reports-body");
+        const reportsMessage = document.getElementById("reports-message");
+        const statuses = ["Submitted", "Under Review", "Assigned", "In Progress", "Resolved", "Rejected"];
+
+        function showMessage(text, error = false) {
+            reportsMessage.textContent = text;
+            reportsMessage.className = error ? "mb-4 rounded-xl bg-rose-50 p-3 text-sm font-semibold text-rose-700" : "mb-4 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-700";
+        }
+
+        async function loadReports() {
+            const token = localStorage.getItem(tokenKey);
+            if (!token) return;
+            const response = await fetch("/api/reports/admin/all", { headers: { Authorization: `Bearer ${token}` } });
+            if (!response.ok) throw new Error((await response.json()).detail || "Unable to load reports.");
+            const reports = await response.json();
+            reportsBody.replaceChildren();
+            reports.forEach((report) => {
+                const row = document.createElement("tr");
+                row.className = "align-top hover:bg-slate-50";
+                row.innerHTML = `<td class="px-4 py-4 font-bold text-blue-700"></td><td class="px-4 py-4"><p class="font-bold text-slate-900"></p><p class="mt-1 text-xs text-slate-500"></p></td><td class="px-4 py-4"></td><td class="px-4 py-4 font-bold"></td><td class="px-4 py-4 max-w-xs text-slate-600"></td><td class="px-4 py-4 whitespace-nowrap text-slate-600"></td><td class="px-4 py-4"><select class="rounded-lg border border-slate-300 px-2 py-2 text-xs font-semibold"></select><input class="mt-2 w-44 rounded-lg border border-slate-300 px-2 py-2 text-xs" maxlength="500" placeholder="Optional status note"></td>`;
+                const cells = row.querySelectorAll("td");
+                cells[0].textContent = report.tracking_number;
+                cells[1].querySelector("p").textContent = report.category;
+                cells[1].querySelector("p:last-child").textContent = report.description;
+                cells[2].textContent = report.severity;
+                cells[3].textContent = `${report.priority_score}/100`;
+                cells[4].textContent = report.address || `${report.latitude}, ${report.longitude}`;
+                cells[5].textContent = new Date(report.created_at).toLocaleString();
+                const select = cells[6].querySelector("select");
+                const noteInput = cells[6].querySelector("input");
+                statuses.forEach((status) => { const option = new Option(status, status, false, status === report.status); select.add(option); });
+                select.addEventListener("change", async () => {
+                    select.disabled = true;
+                    try {
+                        const update = await fetch(`/api/reports/${report.id}/status`, { method: "PATCH", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ status: select.value, note: noteInput.value.trim() || null }) });
+                        if (!update.ok) throw new Error((await update.json()).detail || "Unable to update status.");
+                        showMessage(`${report.tracking_number} is now ${select.value}.`);
+                        noteInput.value = "";
+                    } catch (error) {
+                        showMessage(error.message, true);
+                        select.value = report.status;
+                    } finally { select.disabled = false; }
+                });
+                reportsBody.appendChild(row);
+            });
+            loginPanel.classList.add("hidden");
+            reportsPanel.classList.remove("hidden");
+        }
+
+        document.getElementById("login-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const error = document.getElementById("login-error");
+            error.classList.add("hidden");
+            try {
+                const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: document.getElementById("login-email").value, password: document.getElementById("login-password").value }) });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || "Sign in failed.");
+                if (!["authority", "admin"].includes(data.user.role)) throw new Error("Authority access required.");
+                localStorage.setItem(tokenKey, data.access_token);
+                await loadReports();
+            } catch (err) { error.textContent = err.message; error.classList.remove("hidden"); }
+        });
+        document.getElementById("refresh-button").addEventListener("click", () => loadReports().catch((error) => showMessage(error.message, true)));
+        loadReports().catch(() => localStorage.removeItem(tokenKey));
+        lucide.createIcons();
+    </script>
+</body>
+</html>
